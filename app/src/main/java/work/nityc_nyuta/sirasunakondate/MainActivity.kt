@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ListAdapter
+import android.widget.ListView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
@@ -20,8 +22,10 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     //onCreate
@@ -102,11 +106,43 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //献立表示
     fun KondateShow(response_json: JSONObject){
+        //献立をそれぞれ変数に入れる
         val menu = response_json.getJSONObject("menu")
         val breakfast = menu.getJSONArray("breakfast")
         val lunch = menu.getJSONArray("lunch")
         val dinner = menu.getJSONArray("dinner")
-        Toast.makeText(this,dinner.toString(), LENGTH_LONG).show()
+
+        //Listview設定
+        val kondate_show_listview = findViewById<ListView>(R.id.kondate_show)
+        val list = mutableListOf<KondateList>()
+        val section_position = mutableListOf<Int>()
+
+        //献立をlistに追加
+        for(box in arrayOf<JSONArray>(breakfast,lunch,dinner)){
+            val kondate_type = KondateList()
+
+            //擬似セクション
+            when(box){
+                breakfast -> kondate_type.name = "  朝食"
+                lunch -> kondate_type.name = "  昼食"
+                dinner -> kondate_type.name = "  夕食"
+            }
+            list!!.add(kondate_type)
+
+            //献立追加
+            for(idx in 0..box.length()-1){
+                if(box.getString(idx) != ""){
+                    val kondate_list_for = KondateList()
+                    kondate_list_for.name = "  " + box.getString(idx)
+                    list!!.add(kondate_list_for)
+                }
+            }
+
+        }
+
+        //アダプター設定
+        val adapter = KondateListAdapter(this,list.toList())
+        kondate_show_listview.adapter = adapter
     }
 
     //API接続
