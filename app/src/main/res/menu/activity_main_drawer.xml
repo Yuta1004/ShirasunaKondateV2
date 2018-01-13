@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_search_black_24dp"
+            android:title="@string/nav_search" />
+        <item
+            android:id="@+id/nav_calender_open"
+            android:icon="@drawable/ic_date_range_black_24dp"
+            android:title="@string/nav_calender_open" />
+    </group>
+
+    <item android:title="その他">
+        <menu>
+            <item
+                android:id="@+id/nav_credit"
+                android:title="@string/nav_credit" />
+            <item
+                android:id="@+id/nav_setting"
+                android:title="@string/nav_setting" />
+        </menu>
+    </item>
+
+</menu>

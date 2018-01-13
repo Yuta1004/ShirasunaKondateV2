@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">白砂寮献立アプリ</string>
+    <string name="version">Version α.1.0</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="nav_search">検索</string>
+    <string name="nav_calender_open">日時指定</string>
+    <string name="nav_credit">クレジット</string>
+    <string name="nav_setting">設定</string>
+</resources>
