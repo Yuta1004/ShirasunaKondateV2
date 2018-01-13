@@ -9,4 +9,6 @@
     <string name="nav_calender_open">日時指定</string>
     <string name="nav_credit">クレジット</string>
     <string name="nav_setting">設定</string>
+    <string name="left_arrow">◀︎</string>
+    <string name="right_arrow">▶︎</string>
 </resources>

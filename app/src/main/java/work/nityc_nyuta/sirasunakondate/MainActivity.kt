@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListAdapter
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //献立表示
-    fun KondateShow(response_json: JSONObject){
+    fun KondateShow(response_json: JSONObject, date: String){
         //献立をそれぞれ変数に入れる
         val menu = response_json.getJSONObject("menu")
         val breakfast = menu.getJSONArray("breakfast")
@@ -143,6 +144,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //アダプター設定
         val adapter = KondateListAdapter(this,list.toList())
         kondate_show_listview.adapter = adapter
+        val date_list = date.split(",")
+        findViewById<TextView>(R.id.date).setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
     }
 
     //API接続
@@ -159,7 +162,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val params: JSONObject = JSONObject()
         val request = JsonObjectRequest(Request.Method.GET, API_URL, params,
                 Response.Listener<JSONObject> { response ->
-                    KondateShow(response)
+                    KondateShow(response,key[0] + "," + key[1] + "," + key[2])
                 },
                 Response.ErrorListener { volleyError ->
                     Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
