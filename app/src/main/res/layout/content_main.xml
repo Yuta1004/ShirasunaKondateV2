@@ -23,7 +23,7 @@
 
             <Button
                 android:id="@+id/before"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#00000000"
@@ -33,16 +33,16 @@
 
             <TextView
                 android:id="@+id/date"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="8"
+                android:layout_weight="2.2"
                 android:gravity="center"
                 android:textColor="#000"
                 android:textSize="25sp" />
 
             <Button
                 android:id="@+id/next"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#00000000"
