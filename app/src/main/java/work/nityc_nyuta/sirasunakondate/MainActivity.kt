@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setTitle("白砂寮献立")
 
-        //メイン画面上部ボタンのリスナー (GetAPI -> KondateShow)
+        //メイン画面上部ボタンのリスナー (GetAPI -> CreateKondateList -> AdapterDataSet)
         findViewById<Button>(R.id.before).setOnClickListener{ GetAPI("all",DatePlusToString(plus_day-1)); plus_day-- }
         findViewById<Button>(R.id.next).setOnClickListener{ GetAPI("all",DatePlusToString(plus_day+1)); plus_day ++ }
     }
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onResume() {
         super.onResume()
 
-        //API接続 (GetAPI -> KondateShow)
+        //API接続 (GetAPI -> CreateKondateList -> AdapterDataSet)
         GetAPI("all",DatePlusToString(0));
     }
 
@@ -110,28 +110,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //献立表示
-    fun KondateShow(response_json: JSONObject, date: String){
-        //Listview設定
-        val kondate_show_listview = findViewById<ListView>(R.id.kondate_show)
+    fun CreateKondateList(response_json: JSONObject, date: String){
         val list = mutableListOf<KondateList>()
-        val section_position = mutableListOf<Int>()
 
         //コードによって分岐
         when(response_json.getInt("code")){
             2,3 -> { //Error
                 val error_messages = mutableMapOf<String,String>("2" to "データ取得時にエラーが発生しました", "3" to "献立データが登録されていません")
                 Toast.makeText(this,error_messages[response_json.getString("code")], LENGTH_SHORT).show()
-
-                //アダプター設定
-                val adapter = KondateListAdapter(this, list.toList())
-                kondate_show_listview.adapter = adapter
-                val date_list = date.split(",")
-
-                //日付表示
-                val calender = Calendar.getInstance()
-                findViewById<TextView>(R.id.date).setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
-
-                connecting = false
+                AdapterDataSet(list.toList(),date)
                 return Unit
             }
         }
@@ -141,7 +128,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val breakfast = menu.getJSONArray("breakfast")
         val lunch = menu.getJSONArray("lunch")
         val dinner = menu.getJSONArray("dinner")
-
 
         //献立をlistに追加
         for(box in arrayOf<JSONArray>(breakfast,lunch,dinner)){
@@ -153,25 +139,50 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 lunch -> kondate_type.name = "  昼食"
                 dinner -> kondate_type.name = "  夕食"
             }
-            list!!.add(kondate_type)
+            list.add(kondate_type)
 
             //献立追加
             for(idx in 0..box.length()-1){
                 if(box.getString(idx) != ""){
                     val kondate_list_for = KondateList()
                     kondate_list_for.name = "  " + box.getString(idx)
-                    list!!.add(kondate_list_for)
+                    list.add(kondate_list_for)
                 }
             }
-
+            AdapterDataSet(list.toList(),date)
         }
+    }
+
+    //アダプターにデータを登録
+    fun AdapterDataSet(list: List<KondateList>, date: String){
+        val kondate_show_listview = findViewById<ListView>(R.id.kondate_show)
 
         //アダプター設定
-        val adapter = KondateListAdapter(this,list.toList())
+        val adapter = KondateListAdapter(this, list.toList())
         kondate_show_listview.adapter = adapter
         val date_list = date.split(",")
-        findViewById<TextView>(R.id.date).setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
+
+        //日付表示
+        val calendar = Calendar.getInstance()
+        val calendar_tomorrow = Calendar.getInstance()
+        calendar_tomorrow.add(Calendar.DAY_OF_MONTH,1)
+        val date_text_view = findViewById<TextView>(R.id.date)
+
+        if((calendar.get(Calendar.YEAR)) == date_list[0].toInt() //今日
+                && calendar.get(Calendar.MONTH)+1 == date_list[1].toInt()
+                && calendar.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()){
+            date_text_view.setText("今日の献立")
+        }else if(calendar_tomorrow.get(Calendar.YEAR) == date_list[0].toInt() //明日
+                && calendar_tomorrow.get(Calendar.MONTH)+1 == date_list[1].toInt()
+                && calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()){
+            date_text_view.setText("明日の献立")
+        }else { //その他
+            date_text_view.setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
+        }
+
         connecting = false
+        setTitle("白砂寮献立")
+        return Unit
     }
 
     //API接続
@@ -181,6 +192,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return Unit
         }else{
             connecting = true
+            setTitle("白砂寮献立 Loading...")
         }
 
         //URL設定
@@ -195,7 +207,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val params: JSONObject = JSONObject()
         val request = JsonObjectRequest(Request.Method.GET, API_URL, params,
                 Response.Listener<JSONObject> { response ->
-                    KondateShow(response,key[0] + "," + key[1] + "," + key[2])
+                    CreateKondateList(response,key[0] + "," + key[1] + "," + key[2])
                 },
                 Response.ErrorListener { volleyError ->
                     Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
