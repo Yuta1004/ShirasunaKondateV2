@@ -27,6 +27,7 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     var plus_day = 0
+    var connecting = false
 
     //onCreate
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_search -> {
 
             }
-            R.id.nav_calender_open -> {
+            R.id.nav_calendar_open -> {
 
             }
             R.id.nav_credit -> {
@@ -100,11 +101,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //日時を指定日加算してStr型で返す
     fun DatePlusToString(delay: Int): String{
-        val calender = Calendar.getInstance()
-        calender.add(Calendar.DAY_OF_MONTH,delay)
-        val date = listOf<Int>(calender.get(Calendar.YEAR),
-                                     calender.get(Calendar.MONTH)+1,
-                                     calender.get(Calendar.DAY_OF_MONTH))
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_MONTH,delay)
+        val date = listOf<Int>(calendar.get(Calendar.YEAR),
+                                     calendar.get(Calendar.MONTH)+1,
+                                     calendar.get(Calendar.DAY_OF_MONTH))
         return date[0].toString() + "," + date[1].toString() + "," + date[2].toString()
     }
 
@@ -125,7 +126,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val adapter = KondateListAdapter(this, list.toList())
                 kondate_show_listview.adapter = adapter
                 val date_list = date.split(",")
+
+                //日付表示
+                val calender = Calendar.getInstance()
                 findViewById<TextView>(R.id.date).setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
+
+                connecting = false
                 return Unit
             }
         }
@@ -165,10 +171,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         kondate_show_listview.adapter = adapter
         val date_list = date.split(",")
         findViewById<TextView>(R.id.date).setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
+        connecting = false
     }
 
     //API接続
     fun GetAPI(isbn: String, keys: String){
+        //接続中か確認
+        if(connecting){
+            return Unit
+        }else{
+            connecting = true
+        }
+
         //URL設定
         var API_URL = "http://nityc-nyuta.work/sirasuna_kondateAPI_prototype/"
         val key = keys.split(",")
