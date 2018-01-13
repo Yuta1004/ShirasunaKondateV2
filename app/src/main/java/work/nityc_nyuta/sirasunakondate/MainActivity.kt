@@ -11,10 +11,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ListAdapter
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import com.android.volley.Request
@@ -29,6 +26,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    var plus_day = 0
+
     //onCreate
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +43,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
 
         setTitle("白砂寮献立")
+
+        //メイン画面上部ボタンのリスナー (GetAPI -> KondateShow)
+        findViewById<Button>(R.id.before).setOnClickListener{ GetAPI("all",DatePlusToString(plus_day-1)); plus_day-- }
+        findViewById<Button>(R.id.next).setOnClickListener{ GetAPI("all",DatePlusToString(plus_day+1)); plus_day ++ }
     }
 
     //画面表示時
@@ -107,16 +110,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //献立表示
     fun KondateShow(response_json: JSONObject, date: String){
-        //献立をそれぞれ変数に入れる
+        //Listview設定
+        val kondate_show_listview = findViewById<ListView>(R.id.kondate_show)
+        val list = mutableListOf<KondateList>()
+        val section_position = mutableListOf<Int>()
+
+        //コードによって分岐
+        when(response_json.getInt("code")){
+            2,3 -> { //Error
+                val error_messages = mutableMapOf<String,String>("2" to "データ取得時にエラーが発生しました", "3" to "献立データが登録されていません")
+                Toast.makeText(this,error_messages[response_json.getString("code")], LENGTH_SHORT).show()
+
+                //アダプター設定
+                val adapter = KondateListAdapter(this, list.toList())
+                kondate_show_listview.adapter = adapter
+                val date_list = date.split(",")
+                findViewById<TextView>(R.id.date).setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
+                return Unit
+            }
+        }
+
+        //献立配列をそれぞれ変数に入れる
         val menu = response_json.getJSONObject("menu")
         val breakfast = menu.getJSONArray("breakfast")
         val lunch = menu.getJSONArray("lunch")
         val dinner = menu.getJSONArray("dinner")
 
-        //Listview設定
-        val kondate_show_listview = findViewById<ListView>(R.id.kondate_show)
-        val list = mutableListOf<KondateList>()
-        val section_position = mutableListOf<Int>()
 
         //献立をlistに追加
         for(box in arrayOf<JSONArray>(breakfast,lunch,dinner)){
