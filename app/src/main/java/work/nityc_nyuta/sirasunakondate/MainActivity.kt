@@ -176,6 +176,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     date_text_view.text = "今日の献立"
                 }else if(calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()){ //明日
                     date_text_view.text = "明日の献立"
+                }else{
+                    date_text_view.text = "${date_list[0]}年${date_list[1]}月${date_list[2]}日"
                 }
             }
             else -> date_text_view.text = "${date_list[0]}年${date_list[1]}月${date_list[2]}日"
