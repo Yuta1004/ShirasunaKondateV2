@@ -1,15 +1,15 @@
 package work.nityc_nyuta.sirasunakondate
 
 import android.app.DatePickerDialog
-import android.app.VoiceInteractor
-import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
@@ -24,10 +24,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URI
-import java.net.URL
-import java.time.Year
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     var plus_day = 0
@@ -100,8 +97,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //ナビゲーションドロワー
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+
+            //献立検索
             R.id.nav_search -> {
 
+                //検索ダイアログ生成->表示
+                val alertDialogBuilder = AlertDialog.Builder(this)
+                val layout = LayoutInflater.from(this).inflate(R.layout.search_dialog,null)
+                alertDialogBuilder.setTitle("献立検索")
+                                  .setView(layout)
+                                  .setNegativeButton("キャンセル",null)
+                                  .setPositiveButton("検索",DialogInterface.OnClickListener { dialog, which ->
+                                      val menu_input = layout.findViewById<EditText>(R.id.menu_input).text.toString()
+                                      GetAPI("search", listOf(), listOf<String>(menu_input))
+                                  })
+                alertDialogBuilder.create().show()
             }
 
             //日付選択
@@ -109,6 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 //カレンダーインスタンス作成-> DatePickerDialo生成
                 val calendar = Calendar.getInstance()
+                calendar.add(Calendar.DAY_OF_MONTH,plus_day)
                 DatePickerDialog(this,
 
                         //リスナ
@@ -233,6 +244,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             else -> date_text_view.text = "${date[0]}年${date[1]}月${date[2]}日"
         }
 
+        //接続終了処理
         connecting = false
         setTitle("白砂寮献立")
         return Unit
@@ -271,11 +283,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             "search" -> { //献立検索
-                API_URL += "search?menu=${keys_str[0]}"
+                val menu_input = keys_str[0]
+                API_URL += "search?menu=${menu_input}"
                 API_URL = URI(API_URL).toASCIIString()
                 request = JsonObjectRequest(Request.Method.GET, API_URL, params,
                         Response.Listener<JSONObject> { response ->
-                            Log.d("response",response.toString())
+
+                            //接続終了処理
+                            connecting = false
+                            setTitle("白砂寮献立")
+
+                            //検索結果ダイアログ生成->表示
+                            val alertDialogBuilder = AlertDialog.Builder(this)
+                            if(response.getInt("code") == 0){ //ヒット
+
+                                //カレンダーインスタンス生成など
+                                val calendar_today = Calendar.getInstance()
+                                val date = response.getString("date").split("/")
+                                val type = response.getString("type")
+
+                                alertDialogBuilder.setTitle("検索結果")
+                                        .setMessage("次に ${menu_input} が出るのは\n${date[0]}年${date[1]}月${date[2]}日 ${type} です")
+                                        .setNegativeButton("閉じる",null)
+                                        .setPositiveButton("表示",DialogInterface.OnClickListener { dialog, which ->
+
+                                            //検索結果の日の献立を表示(GetAPI -> CreateKondateList -> AdapterDataSet -> DateDifference)
+                                            GetAPI("all", listOf<Int>(date[0].toInt(),date[1].toInt(),date[2].toInt()), listOf())
+                                            plus_day = DateDifference(listOf<Int>(calendar_today.get(Calendar.YEAR),calendar_today.get(Calendar.MONTH),calendar_today.get(Calendar.DAY_OF_MONTH)),
+                                                           listOf<Int>(date[0].toInt(),date[1].toInt()-1,date[2].toInt()))
+                                        })
+                            }else{ //ノーヒット
+                                alertDialogBuilder.setTitle("検索結果")
+                                        .setMessage("${menu_input}は見つかりませんでした")
+                                        .setPositiveButton("閉じる",null)
+                            }
+                            alertDialogBuilder.create().show()
+
                         },
                         Response.ErrorListener { volleyError ->
                             Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
