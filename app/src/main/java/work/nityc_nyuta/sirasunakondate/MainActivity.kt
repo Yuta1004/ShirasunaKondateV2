@@ -115,11 +115,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                             //現在表示されている日付からセットされた日付を引いてplus_dayにセット
                             val calendar_today = Calendar.getInstance()
-                            val calendar_show_date = Calendar.getInstance()
-                            calendar_show_date.set(show_date[0],show_date[1]-1,show_date[2])
-                            val minus_mill = calendar_show_date.timeInMillis - calendar_today.timeInMillis
-                            plus_day = (minus_mill / (1000 * 60 * 60 * 24)).toInt()
-                            Log.d("plus_day",plus_day.toString())
+                            plus_day = DateDifference(listOf(calendar_today.get(Calendar.YEAR),calendar_today.get(Calendar.MONTH),calendar_today.get(Calendar.DAY_OF_MONTH)),
+                                           listOf(year,month,dayofMonth))
 
                         },calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show()
             }
@@ -145,6 +142,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                      calendar.get(Calendar.MONTH)+1,
                                      calendar.get(Calendar.DAY_OF_MONTH))
         return listOf<Int>(date[0], date[1], date[2])
+    }
+
+    //date_1とdate_2の日時の差を求めてInt型で返す
+    //date_1 -> 基準
+    fun DateDifference(date_1: List<Int>, date_2: List<Int>): Int{
+
+        //カレンダーインスタンス生成->日時指定
+        val calendar_1 = Calendar.getInstance()
+        calendar_1.set(date_1[0],date_1[1],date_1[2])
+        val calendar_2 = Calendar.getInstance()
+        calendar_2.set(date_2[0],date_2[1],date_2[2])
+
+        //差を求める(long)->Int型に変換して返す
+        val minus_mill = calendar_2.timeInMillis - calendar_1.timeInMillis
+        return (minus_mill / (1000 * 60 * 60 * 24)).toInt()
     }
 
     //献立表示
