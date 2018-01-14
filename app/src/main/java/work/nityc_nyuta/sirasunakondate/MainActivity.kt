@@ -46,8 +46,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setTitle("白砂寮献立")
 
         //メイン画面上部ボタンのリスナー (GetAPI -> CreateKondateList -> AdapterDataSet)
-        findViewById<Button>(R.id.before).setOnClickListener{ GetAPI("all",DatePlusToString(plus_day-1)); plus_day-- }
-        findViewById<Button>(R.id.next).setOnClickListener{ GetAPI("all",DatePlusToString(plus_day+1)); plus_day ++ }
+        findViewById<Button>(R.id.before).setOnClickListener{
+            val isSuccess = GetAPI("all",DatePlusToString(plus_day-1))
+            if(isSuccess) plus_day--
+        }
+        findViewById<Button>(R.id.next).setOnClickListener{
+            val isSuccess = GetAPI("all",DatePlusToString(plus_day+1))
+            if(isSuccess) plus_day ++
+        }
     }
 
     //画面表示時
@@ -196,10 +202,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //API接続
-    fun GetAPI(isbn: String, keys: String){
+    fun GetAPI(isbn: String, keys: String): Boolean{
         //接続中か確認
         if(connecting){
-            return Unit
+            return false
         }else{
             connecting = true
             setTitle("白砂寮献立 Loading...")
@@ -225,5 +231,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
         queue.add(request)
         queue.start()
+        return true
     }
 }
