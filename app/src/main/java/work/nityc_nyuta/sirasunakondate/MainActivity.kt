@@ -23,6 +23,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.URI
+import java.net.URL
 import java.time.Year
 import java.util.*
 import kotlin.collections.ArrayList
@@ -50,11 +52,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //メイン画面上部ボタンのリスナー (GetAPI -> CreateKondateList -> AdapterDataSet)
         findViewById<Button>(R.id.before).setOnClickListener{
-            val isSuccess = GetAPI("all",DatePlusToList(plus_day-1))
+            val isSuccess = GetAPI("all",DatePlusToList(plus_day-1),listOf())
             if(isSuccess) plus_day--
         }
         findViewById<Button>(R.id.next).setOnClickListener{
-            val isSuccess = GetAPI("all",DatePlusToList(plus_day+1))
+            val isSuccess = GetAPI("all",DatePlusToList(plus_day+1),listOf())
             if(isSuccess) plus_day ++
         }
     }
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //API接続 (GetAPI -> CreateKondateList -> AdapterDataSet)
         plus_day = 0
-        GetAPI("all",DatePlusToList(0))
+        GetAPI("all",DatePlusToList(0),listOf())
     }
 
     //戻るボタン
@@ -88,7 +90,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
             R.id.action_today -> {
                 plus_day = 0
-                GetAPI("all",DatePlusToList(plus_day))
+                GetAPI("all",DatePlusToList(plus_day), listOf())
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -111,7 +113,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         //リスナ
                         DatePickerDialog.OnDateSetListener { view, year, month, dayofMonth ->
-                            GetAPI("all", listOf(year,month+1,dayofMonth))
+                            GetAPI("all", listOf(year,month+1,dayofMonth), listOf())
 
                             //現在表示されている日付からセットされた日付を引いてplus_dayにセット
                             val calendar_today = Calendar.getInstance()
@@ -237,13 +239,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //API接続
-    fun GetAPI(isbn: String, keys: List<Int>): Boolean{
+    fun GetAPI(isbn: String, keys_int: List<Int>, keys_str: List<String>): Boolean{
 
         //接続中か確認
         if(connecting){
             return false
         }else{
-            if(isbn == "all") show_date = keys
+            if(isbn == "all") show_date = keys_int
             connecting = true
             setTitle("白砂寮献立 Loading...")
         }
@@ -255,19 +257,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //URL設定
         var API_URL = "http://nityc-nyuta.work/sirasuna_kondateAPI_prototype/"
-        if(isbn == "all"){ //献立全取得
-            API_URL += "all?year=${keys[0]}&month=${keys[1]}&day=${keys[2]}"
-            request = JsonObjectRequest(Request.Method.GET, API_URL, params,
-                    Response.Listener<JSONObject> { response ->
-                        CreateKondateList(response,keys)
-                    },
-                    Response.ErrorListener { volleyError ->
-                        Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
-                    }
-            )
-        }else{
-            return false
+        when(isbn){
+            "all" -> { //献立全取得
+                API_URL += "all?year=${keys_int[0]}&month=${keys_int[1]}&day=${keys_int[2]}"
+                request = JsonObjectRequest(Request.Method.GET, API_URL, params,
+                        Response.Listener<JSONObject> { response ->
+                            CreateKondateList(response,keys_int)
+                        },
+                        Response.ErrorListener { volleyError ->
+                            Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
+                        }
+                )
+            }
+
+            "search" -> { //献立検索
+                API_URL += "search?menu=${keys_str[0]}"
+                API_URL = URI(API_URL).toASCIIString()
+                request = JsonObjectRequest(Request.Method.GET, API_URL, params,
+                        Response.Listener<JSONObject> { response ->
+                            Log.d("response",response.toString())
+                        },
+                        Response.ErrorListener { volleyError ->
+                            Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
+                        }
+                )
+            }
+
+            else -> {
+                return false
+            }
         }
+
         queue.add(request)
         queue.start()
         return true
