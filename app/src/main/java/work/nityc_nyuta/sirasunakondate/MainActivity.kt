@@ -55,6 +55,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onResume()
 
         //API接続 (GetAPI -> CreateKondateList -> AdapterDataSet)
+        plus_day = 0
         GetAPI("all",DatePlusToString(0));
     }
 
@@ -168,16 +169,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         calendar_tomorrow.add(Calendar.DAY_OF_MONTH,1)
         val date_text_view = findViewById<TextView>(R.id.date)
 
-        if((calendar.get(Calendar.YEAR)) == date_list[0].toInt() //今日
-                && calendar.get(Calendar.MONTH)+1 == date_list[1].toInt()
-                && calendar.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()){
-            date_text_view.setText("今日の献立")
-        }else if(calendar_tomorrow.get(Calendar.YEAR) == date_list[0].toInt() //明日
-                && calendar_tomorrow.get(Calendar.MONTH)+1 == date_list[1].toInt()
-                && calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()){
-            date_text_view.setText("明日の献立")
-        }else { //その他
-            date_text_view.setText(date_list[0] + "年" + date_list[1] + "月" + date_list[2] + "日")
+        //日付表示欄設定
+        when(listOf<Int>(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1)){
+            listOf(date_list[0].toInt(),date_list[1].toInt()) -> { //今日 or 明日
+                if(calendar.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()) { //今日
+                    date_text_view.text = "今日の献立"
+                }else if(calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()){ //明日
+                    date_text_view.text = "明日の献立"
+                }
+            }
+            else -> date_text_view.text = "${date_list[0]}年${date_list[1]}月${date_list[2]}日"
         }
 
         connecting = false
