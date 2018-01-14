@@ -179,8 +179,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //コードによって分岐
         when(response_json.getInt("code")){
             2,3 -> { //Error
-                val error_messages = mutableMapOf<String,String>("2" to "データ取得時にエラーが発生しました", "3" to "献立データが登録されていません")
-                Toast.makeText(this,error_messages[response_json.getString("code")], LENGTH_SHORT).show()
+                val error_messages = mutableMapOf<String,String>("2" to "  データ取得時にエラーが発生しました", "3" to "  献立データが登録されていません")
+                val kondate_list = KondateList()
+                kondate_list.name = error_messages[response_json.getString("code")]!!
+                list.add(kondate_list)
                 AdapterDataSet(list.toList(),date)
                 return Unit
             }
