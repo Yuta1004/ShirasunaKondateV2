@@ -1,5 +1,6 @@
 package work.nityc_nyuta.sirasunakondate
 
+import android.app.DatePickerDialog
 import android.app.VoiceInteractor
 import android.content.Context
 import android.os.Bundle
@@ -22,11 +23,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Year
 import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     var plus_day = 0
+    var show_date = listOf<Int>(2001,10,4)
     var connecting = false
 
     //onCreate
@@ -47,11 +50,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //メイン画面上部ボタンのリスナー (GetAPI -> CreateKondateList -> AdapterDataSet)
         findViewById<Button>(R.id.before).setOnClickListener{
-            val isSuccess = GetAPI("all",DatePlusToString(plus_day-1))
+            val isSuccess = GetAPI("all",DatePlusToList(plus_day-1))
             if(isSuccess) plus_day--
         }
         findViewById<Button>(R.id.next).setOnClickListener{
-            val isSuccess = GetAPI("all",DatePlusToString(plus_day+1))
+            val isSuccess = GetAPI("all",DatePlusToList(plus_day+1))
             if(isSuccess) plus_day ++
         }
     }
@@ -62,7 +65,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //API接続 (GetAPI -> CreateKondateList -> AdapterDataSet)
         plus_day = 0
-        GetAPI("all",DatePlusToString(0));
+        GetAPI("all",DatePlusToList(0))
     }
 
     //戻るボタン
@@ -85,7 +88,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
             R.id.action_today -> {
                 plus_day = 0
-                GetAPI("all",DatePlusToString(plus_day))
+                GetAPI("all",DatePlusToList(plus_day))
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -98,12 +101,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_search -> {
 
             }
+
+            //日付選択
             R.id.nav_calendar_open -> {
 
+                //カレンダーインスタンス作成-> DatePickerDialo生成
+                val calendar = Calendar.getInstance()
+                DatePickerDialog(this,
+
+                        //リスナ
+                        DatePickerDialog.OnDateSetListener { view, year, month, dayofMonth ->
+                            GetAPI("all", listOf(year,month+1,dayofMonth))
+
+                            //現在表示されている日付からセットされた日付を引いてplus_dayにセット
+                            val calendar_today = Calendar.getInstance()
+                            val calendar_show_date = Calendar.getInstance()
+                            calendar_show_date.set(show_date[0],show_date[1]-1,show_date[2])
+                            val minus_mill = calendar_show_date.timeInMillis - calendar_today.timeInMillis
+                            plus_day = (minus_mill / (1000 * 60 * 60 * 24)).toInt()
+                            Log.d("plus_day",plus_day.toString())
+
+                        },calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show()
             }
+
             R.id.nav_credit -> {
 
             }
+
             R.id.nav_setting -> {
 
             }
@@ -114,17 +138,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //日時を指定日加算してStr型で返す
-    fun DatePlusToString(delay: Int): String{
+    fun DatePlusToList(delay: Int): List<Int> {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_MONTH,delay)
         val date = listOf<Int>(calendar.get(Calendar.YEAR),
                                      calendar.get(Calendar.MONTH)+1,
                                      calendar.get(Calendar.DAY_OF_MONTH))
-        return date[0].toString() + "," + date[1].toString() + "," + date[2].toString()
+        return listOf<Int>(date[0], date[1], date[2])
     }
 
     //献立表示
-    fun CreateKondateList(response_json: JSONObject, date: String){
+    fun CreateKondateList(response_json: JSONObject, date: List<Int>){
         val list = mutableListOf<KondateList>()
 
         //コードによって分岐
@@ -168,13 +192,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //アダプターにデータを登録
-    fun AdapterDataSet(list: List<KondateList>, date: String){
+    fun AdapterDataSet(list: List<KondateList>, date: List<Int>){
         val kondate_show_listview = findViewById<ListView>(R.id.kondate_show)
 
         //アダプター設定
         val adapter = KondateListAdapter(this, list.toList())
         kondate_show_listview.adapter = adapter
-        val date_list = date.split(",")
 
         //日付表示
         val calendar = Calendar.getInstance()
@@ -184,16 +207,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //日付表示欄設定
         when(listOf<Int>(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1)){
-            listOf(date_list[0].toInt(),date_list[1].toInt()) -> { //今日 or 明日
-                if(calendar.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()) { //今日
+            listOf(date[0].toInt(),date[1].toInt()) -> { //今日 or 明日
+                if(calendar.get(Calendar.DAY_OF_MONTH) == date[2].toInt()) { //今日
                     date_text_view.text = "今日の献立"
-                }else if(calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date_list[2].toInt()){ //明日
+                }else if(calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date[2].toInt()){ //明日
                     date_text_view.text = "明日の献立"
                 }else{
-                    date_text_view.text = "${date_list[0]}年${date_list[1]}月${date_list[2]}日"
+                    date_text_view.text = "${date[0]}年${date[1]}月${date[2]}日"
                 }
             }
-            else -> date_text_view.text = "${date_list[0]}年${date_list[1]}月${date_list[2]}日"
+            else -> date_text_view.text = "${date[0]}年${date[1]}月${date[2]}日"
         }
 
         connecting = false
@@ -202,33 +225,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     //API接続
-    fun GetAPI(isbn: String, keys: String): Boolean{
+    fun GetAPI(isbn: String, keys: List<Int>): Boolean{
+
         //接続中か確認
         if(connecting){
             return false
         }else{
+            if(isbn == "all") show_date = keys
             connecting = true
             setTitle("白砂寮献立 Loading...")
         }
 
-        //URL設定
-        var API_URL = "http://nityc-nyuta.work/sirasuna_kondateAPI_prototype/"
-        val key = keys.split(",")
-        if(isbn == "all"){
-            API_URL += "all?year=" + key[0] + "&month=" + key[1] + "&day=" + key[2]
-        }
-
-        //接続
+        //接続設定
         val queue = Volley.newRequestQueue(this)
         val params: JSONObject = JSONObject()
-        val request = JsonObjectRequest(Request.Method.GET, API_URL, params,
-                Response.Listener<JSONObject> { response ->
-                    CreateKondateList(response,key[0] + "," + key[1] + "," + key[2])
-                },
-                Response.ErrorListener { volleyError ->
-                    Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
-                }
-        )
+        var request: JsonObjectRequest? = null
+
+        //URL設定
+        var API_URL = "http://nityc-nyuta.work/sirasuna_kondateAPI_prototype/"
+        if(isbn == "all"){ //献立全取得
+            API_URL += "all?year=${keys[0]}&month=${keys[1]}&day=${keys[2]}"
+            request = JsonObjectRequest(Request.Method.GET, API_URL, params,
+                    Response.Listener<JSONObject> { response ->
+                        CreateKondateList(response,keys)
+                    },
+                    Response.ErrorListener { volleyError ->
+                        Toast.makeText(this, volleyError.toString(), LENGTH_SHORT).show()
+                    }
+            )
+        }else{
+            return false
+        }
         queue.add(request)
         queue.start()
         return true
