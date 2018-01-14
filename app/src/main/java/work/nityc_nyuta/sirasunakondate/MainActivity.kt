@@ -68,16 +68,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        menuInflater.inflate(R.menu.main, menu)
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            else -> return super.onOptionsItemSelected(item)
-//        }
-//    }
+    //オプションメニュー
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    //オプションメニュー(アイテム選択イベント)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_today -> {
+                plus_day = 0
+                GetAPI("all",DatePlusToString(plus_day))
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
 
     //ナビゲーションドロワー
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

@@ -11,4 +11,5 @@
     <string name="nav_setting">設定</string>
     <string name="left_arrow">◀︎</string>
     <string name="right_arrow">▶︎</string>
+    <string name="action_today">今日の献立</string>
 </resources>
