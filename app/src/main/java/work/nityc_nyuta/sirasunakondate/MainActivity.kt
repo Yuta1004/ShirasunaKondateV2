@@ -1,6 +1,7 @@
 package work.nityc_nyuta.sirasunakondate
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -233,22 +234,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //日付表示
         val calendar = Calendar.getInstance()
+        val calendar_yesterday = Calendar.getInstance()
         val calendar_tomorrow = Calendar.getInstance()
+        val calendar_show_date = Calendar.getInstance()
+        calendar_yesterday.add(Calendar.DAY_OF_MONTH,-1)
         calendar_tomorrow.add(Calendar.DAY_OF_MONTH,1)
+        calendar_show_date.set(date[0],date[1]-1,date[2])
         val date_text_view = findViewById<TextView>(R.id.date)
 
+        //表示文字列設定
+        val day_of_week = mutableListOf<String>("日","月","火","水","木","金","土")
+        var date_show = ""
+        if(date[0].toInt() == calendar.get(Calendar.YEAR)){
+            //今年なら年情報を表示せずに曜日を表示
+            date_show = "${date[1]}月${date[2]}日 (${day_of_week[calendar_show_date.get(Calendar.DAY_OF_WEEK)-1]})"
+        }else{
+            date_show = "${date[0]}年${date[1]}月${date[2]}日"
+        }
+
         //日付表示欄設定
-        when(listOf<Int>(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1)){
-            listOf(date[0].toInt(),date[1].toInt()) -> { //今日 or 明日
-                if(calendar.get(Calendar.DAY_OF_MONTH) == date[2].toInt()) { //今日
-                    date_text_view.text = "今日の献立"
-                }else if(calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date[2].toInt()){ //明日
-                    date_text_view.text = "明日の献立"
+        date_text_view.text = when(listOf<Int>(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1)){
+            listOf(date[0],date[1]) -> { //今日 or 明日
+                if(calendar.get(Calendar.DAY_OF_MONTH) == date[2]) { //今日
+                    "今日の献立"
+                }else if(calendar_tomorrow.get(Calendar.DAY_OF_MONTH) == date[2]) { //明日
+                    "明日の献立"
+                }else if(calendar_yesterday.get(Calendar.DAY_OF_MONTH) == date[2]) {
+                    "昨日の献立"
                 }else{
-                    date_text_view.text = "${date[0]}年${date[1]}月${date[2]}日"
+                    date_show
                 }
             }
-            else -> date_text_view.text = "${date[0]}年${date[1]}月${date[2]}日"
+            else -> date_show
         }
 
         //接続終了処理
