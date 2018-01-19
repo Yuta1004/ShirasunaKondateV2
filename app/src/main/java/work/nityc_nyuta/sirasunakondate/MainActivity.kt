@@ -2,6 +2,7 @@ package work.nityc_nyuta.sirasunakondate
 
 import android.app.DatePickerDialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -138,7 +139,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             R.id.nav_credit -> {
-
+                val intent = Intent(this, CreditActivity::class.java)
+                startActivity(intent)
             }
 
             R.id.nav_setting -> {
