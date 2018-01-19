@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        FirebaseMessaging.getInstance().subscribeToTopic("shirasuna_v2")
+        FirebaseMessaging.getInstance().subscribeToTopic("all")
 
 
         val toggle = ActionBarDrawerToggle(
