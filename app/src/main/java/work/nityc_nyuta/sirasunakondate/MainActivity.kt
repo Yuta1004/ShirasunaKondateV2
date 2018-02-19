@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             R.id.nav_setting -> {
-
+                Toast.makeText(this,"[設定] > 未実装", LENGTH_SHORT).show()
             }
         }
 

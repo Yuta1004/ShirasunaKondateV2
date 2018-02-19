@@ -7,6 +7,7 @@
 
     <string name="nav_search">検索</string>
     <string name="nav_calendar_open">日時指定</string>
+    <string name="nav_details">献立詳細</string>
     <string name="nav_credit">クレジット</string>
     <string name="nav_setting">設定</string>
     <string name="left_arrow">◀︎</string>
