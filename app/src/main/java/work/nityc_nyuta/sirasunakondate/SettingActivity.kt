@@ -7,6 +7,8 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.*
 import java.sql.Time
 
@@ -17,6 +19,24 @@ class SettingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_setting)
 
         listShow()
+        setTitle("設定画面")
+    }
+
+    //オプションメニュー
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.setting_menu, menu)
+        return true
+    }
+
+    //オプションメニュー(アイテム選択イベント)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_main -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun listShow(){
