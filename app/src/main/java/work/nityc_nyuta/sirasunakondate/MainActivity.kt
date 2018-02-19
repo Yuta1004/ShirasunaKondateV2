@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -67,8 +68,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onResume() {
         super.onResume()
 
+        val preference = PreferenceManager.getDefaultSharedPreferences(this)
+        val isTomorrowShow = preference.getBoolean("tomorrow", false)
+
         //API接続 (GetAPI -> CreateKondateList -> AdapterDataSet)
-        plus_day = 0
+        if(isTomorrowShow){
+            plus_day = 1
+        }else{
+            plus_day = 0
+        }
         GetAPI("all",DatePlusToList(0),listOf())
     }
 
