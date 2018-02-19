@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onResume()
 
         val preference = PreferenceManager.getDefaultSharedPreferences(this)
-        val isTomorrowShow = preference.getBoolean("tomorrow", false)
+        val isTomorrowShow = preference.getBoolean("tomorrow_bool", false)
 
         //API接続 (GetAPI -> CreateKondateList -> AdapterDataSet)
         if(isTomorrowShow){
@@ -158,7 +158,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             R.id.nav_setting -> {
-                Toast.makeText(this,"[設定] > 未実装", LENGTH_SHORT).show()
+                val intent = Intent(this, SettingActivity::class.java)
+                startActivity(intent)
+//                Toast.makeText(this,"[設定] > 未実装", LENGTH_SHORT).show()
             }
         }
 
