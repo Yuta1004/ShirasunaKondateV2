@@ -12,14 +12,13 @@
             android:id="@+id/nav_calendar_open"
             android:icon="@drawable/ic_date_range_black_24dp"
             android:title="@string/nav_calendar_open" />
-        <item
-            android:id="@+id/nav_details"
-            android:icon="@drawable/ic_local_dining_black_24dp"
-            android:title="@string/nav_details" />
     </group>
 
     <item android:title="その他">
         <menu>
+            <item
+                android:id="@+id/nav_details"
+                android:title="@string/nav_details" />
             <item
                 android:id="@+id/nav_credit"
                 android:title="@string/nav_credit" />

@@ -7,12 +7,14 @@
 
     <string name="nav_search">検索</string>
     <string name="nav_calendar_open">日時指定</string>
-    <string name="nav_details">献立詳細</string>
+    <string name="nav_details">情報取得先サイト</string>
     <string name="nav_credit">クレジット</string>
     <string name="nav_setting">設定</string>
     <string name="left_arrow">◀︎</string>
     <string name="right_arrow">▶︎</string>
     <string name="action_today">今日の献立</string>
+    <string name="action_main">メイン画面に戻る</string>
+    <string name="action_browse">ブラウザで開く</string>
     <string name="support">Android 6.0~</string>
     <string name="icon">落書きアイコン (rakugakiicon.com)</string>
     <string name="copylight">© 2017-2018 ️Yuta Nakagami</string>

@@ -28,7 +28,8 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".CreditActivity"></activity>
+        <activity android:name=".CreditActivity" />
+        <activity android:name=".KondateDetailActivity"></activity>
     </application>
 
 </manifest>

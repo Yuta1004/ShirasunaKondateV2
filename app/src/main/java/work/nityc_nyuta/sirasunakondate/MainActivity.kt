@@ -139,6 +139,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         },calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show()
             }
 
+            R.id.nav_details -> {
+                val intent = Intent(this, KondateDetailActivity::class.java)
+                startActivity(intent)
+            }
+
             R.id.nav_credit -> {
                 val intent = Intent(this, CreditActivity::class.java)
                 startActivity(intent)
