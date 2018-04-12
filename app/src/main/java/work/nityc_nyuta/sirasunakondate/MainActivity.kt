@@ -70,14 +70,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val preference = PreferenceManager.getDefaultSharedPreferences(this)
         val isTomorrowShow = preference.getBoolean("tomorrow_bool", false)
+        val tomorrow_show_time = preference.getString("tomorrow_time", "00:00").split(":")
+        val calendar = Calendar.getInstance()
+        val now_time = (calendar.get(Calendar.HOUR) + 12*calendar.get(Calendar.AM_PM)) * 60 + calendar.get(Calendar.MINUTE)
+        val setting_time = tomorrow_show_time[0].toInt() * 60 + tomorrow_show_time[1].toInt()
+
+        Log.d("time", now_time.toString() + "," + setting_time.toString())
 
         //API接続 (GetAPI -> CreateKondateList -> AdapterDataSet)
-        if(isTomorrowShow){
+        if(isTomorrowShow && now_time >= setting_time){
             plus_day = 1
         }else{
             plus_day = 0
         }
-        GetAPI("all",DatePlusToList(0),listOf())
+        GetAPI("all",DatePlusToList(plus_day),listOf())
     }
 
     //戻るボタン
